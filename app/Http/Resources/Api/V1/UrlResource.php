@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources\Api\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UrlResource extends JsonResource
+final class UrlResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,12 +17,13 @@ class UrlResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => (string) $this->id,
+            'id' => $this->id,
             'url' => $this->url,
             'shortCode' => $this->short_code,
-            'createdAt' => $this->created_at?->format('Y-m-d\TH:i:s\Z'),
-            'updatedAt' => $this->updated_at?->format('Y-m-d\TH:i:s\Z'),
-            'accessCount' => $this->whenHas('access_count'),
+            'shortUrl' => url('/' . $this->short_code),
+            'createdAt' => $this->created_at->toISOString(),
+            'updatedAt' => $this->updated_at->toISOString(),
+            'accessCount' => $this->access_count,
         ];
     }
 }
