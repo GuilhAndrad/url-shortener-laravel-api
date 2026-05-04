@@ -3,12 +3,15 @@
 use App\Http\Controllers\Api\V1\UrlController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('/{code}', [UrlController::class, 'redirect'])
+    ->middleware('throttle:api');
+    
 Route::prefix('v1')->group(function () {  
     Route::post('/shorten', [UrlController::class, 'store'])
         ->middleware('throttle:shorten_create');
 
     Route::middleware('throttle:api')->group(function () {
-        Route::get('/{code}', [UrlController::class, 'redirect']);
         Route::get('/shorten/{code}', [UrlController::class, 'show']);
         Route::put('/shorten/{code}', [UrlController::class, 'update']);
         Route::delete('/shorten/{code}', [UrlController::class, 'destroy']);

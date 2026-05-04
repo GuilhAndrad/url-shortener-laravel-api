@@ -5,6 +5,9 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,10 +24,30 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
-            if ($request->is('api/*')) {
-                return true;
-            }
+            return $request->is('api/*') || $request->expectsJson();
+        });
 
-            return $request->expectsJson();
+        $exceptions->render(function (Throwable $e, Request $request) {
+            if ($request->is('api/*')) {
+                
+                if ($e instanceof ValidationException) {
+                    return response()->json([
+                        'message' => 'Invalid request data',
+                        'errors' => $e->errors(),
+                    ], 400);
+                }
+
+                if ($e instanceof NotFoundHttpException) {
+                    return response()->json([
+                        'message' => 'Resource not found',
+                    ], 404);
+                }
+
+                if ($e instanceof MethodNotAllowedException) {
+                    return response()->json([
+                        'message' => 'Method not allowed for this route',
+                    ], 405);
+                }
+            }
         });
     })->create();
