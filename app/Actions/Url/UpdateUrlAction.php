@@ -6,11 +6,10 @@ namespace App\Actions\Url;
 
 use App\Models\Url;
 use Illuminate\Support\Facades\DB;
-use SensitiveParameter;
 
 final readonly class UpdateUrlAction
 {
-    public function handle(Url $url, #[SensitiveParameter] array $data): Url
+    public function handle(Url $url, array $data): Url
     {
         return DB::transaction(function () use ($url, $data) {
             $url->update([
@@ -18,6 +17,7 @@ final readonly class UpdateUrlAction
             ]);
 
             return $url;
-        });
+        });   
+          
     }
 }

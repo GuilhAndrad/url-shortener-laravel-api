@@ -4,7 +4,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
@@ -21,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/*',
         ]);
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', ''));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (Throwable $e, Request $request) {
             if ($request->is('api/*')) {
-                
+
                 if ($e instanceof ValidationException) {
                     return response()->json([
                         'message' => 'Invalid request data',
@@ -48,6 +48,10 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'Method not allowed for this route',
                     ], 405);
                 }
+
+                return response()->json([
+                    'message' => 'An unexpected error occurred.',
+                ], 500);
             }
         });
     })->create();

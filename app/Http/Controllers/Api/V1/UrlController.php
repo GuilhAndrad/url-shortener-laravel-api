@@ -63,9 +63,8 @@ final class UrlController extends Controller
 
     /**
      * Retrieve original URL data.
-     * 
-     * Returns the short URL object. Each call to this endpoint 
-     * increments the access counter via an Action.
+     *
+     * Returns the short URL object with its metadata.
      */
     public function show(string $shortCode): UrlResource
     {
