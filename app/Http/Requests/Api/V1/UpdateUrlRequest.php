@@ -32,12 +32,14 @@ final class UpdateUrlRequest extends FormRequest
             ],
         ];
     }
+    
     public function messages(): array
     {
         return [
             'url.required' => 'The URL field is required.',
             'url.url'      => 'Please enter a valid URL format (e.g., https://google.com).',
+            'url.max'      => 'The URL is too long. The limit is 2048 characters.',
         ];
-    }
+    } 
 }
 
