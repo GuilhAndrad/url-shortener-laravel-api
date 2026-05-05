@@ -18,15 +18,19 @@ final readonly class CreateUrlAction
                 'url' => $data['url'],
                 'short_code' => $this->generateUniqueCode(),
             ]);
-            
+
             return $url;
         });
     }
     private function generateUniqueCode(): string
     {
         do {
-            $code = Str::random(6);
-        } while (Url::query()->where('short_code', $code)->exists());
+            $code = Str::random(7);
+            $exists = Url::query()
+                ->where('short_code', $code)
+                ->lockForUpdate()
+                ->exists();
+        } while ($exists);
 
         return $code;
     }

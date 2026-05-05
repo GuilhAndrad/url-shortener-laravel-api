@@ -10,6 +10,7 @@ use App\Actions\Url\IncrementUrlAccessAction;
 use App\Actions\Url\UpdateUrlAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreUrlRequest;
+use App\Http\Requests\Api\V1\UpdateUrlRequest;
 use App\Http\Resources\Api\V1\UrlResource;
 use App\Models\Url;
 use Illuminate\Http\JsonResponse;
@@ -25,7 +26,7 @@ final class UrlController extends Controller
      */
     public function stats(string $shortCode): UrlResource
     {
-        $url = Url::query()->where('short_code', $shortCode)->firstOrFail();
+        $url = Url::findByShortCode($shortCode);
         return new UrlResource($url);
     }
 
@@ -38,7 +39,7 @@ final class UrlController extends Controller
      */
     public function redirect(string $shortCode, IncrementUrlAccessAction $action): RedirectResponse
     {
-        $url = Url::where('short_code', $shortCode)->firstOrFail();
+        $url = Url::findByShortCode($shortCode);
 
         $action->handle($url);
 
@@ -66,11 +67,9 @@ final class UrlController extends Controller
      * Returns the short URL object. Each call to this endpoint 
      * increments the access counter via an Action.
      */
-    public function show(string $shortCode, IncrementUrlAccessAction $action): UrlResource
+    public function show(string $shortCode): UrlResource
     {
-        $url = Url::query()->where('short_code', $shortCode)->firstOrFail();
-        $action->handle($url);
-
+        $url = Url::findByShortCode($shortCode);
         return new UrlResource($url);
     }
 
@@ -80,9 +79,9 @@ final class UrlController extends Controller
      * Allows changing the destination (original URL) of an existing short code.
      * Validates new data before persisting the update.
      */
-    public function update(StoreUrlRequest $request, string $shortCode, UpdateUrlAction $action): UrlResource
+    public function update(UpdateUrlRequest $request, string $shortCode, UpdateUrlAction $action): UrlResource
     {
-        $url = Url::query()->where('short_code', $shortCode)->firstOrFail();
+        $url = Url::findByShortCode($shortCode);
         $updatedUrl = $action->handle($url, $request->validated());
 
         return new UrlResource($updatedUrl);
@@ -96,7 +95,7 @@ final class UrlController extends Controller
      */
     public function destroy(string $shortCode, DeleteUrlAction $action): JsonResponse
     {
-        $url = Url::query()->where('short_code', $shortCode)->firstOrFail();
+        $url = Url::findByShortCode($shortCode);
         $action->handle($url);
 
         return response()->json(null, 204);

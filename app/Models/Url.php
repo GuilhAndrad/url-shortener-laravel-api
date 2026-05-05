@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,4 +21,24 @@ use Illuminate\Database\Eloquent\Model;
 final class Url extends Model 
 {
     use HasFactory;
+
+    public static function findByShortCode(string $code): self
+    {
+        return self::where('short_code', $code)->firstOrFail();
+    }
+
+    public function scopeByShortCode(Builder $query, string $code): Builder
+    {
+        return $query->where('short_code', $code);
+    }
+
+    public function scopeMostAccessed(Builder $query, int $limit = 10): Builder
+    {
+        return $query->orderByDesc('access_count')->limit($limit);
+    }
+
+    public function scopeRecent(Builder $query): Builder
+    {
+        return $query->orderByDesc('created_at');
+    }
 }
