@@ -26,19 +26,4 @@ final class Url extends Model
     {
         return self::where('short_code', $code)->firstOrFail();
     }
-
-    public function scopeByShortCode(Builder $query, string $code): Builder
-    {
-        return $query->where('short_code', $code);
-    }
-
-    public function scopeMostAccessed(Builder $query, int $limit = 10): Builder
-    {
-        return $query->orderByDesc('access_count')->limit($limit);
-    }
-
-    public function scopeRecent(Builder $query): Builder
-    {
-        return $query->orderByDesc('created_at');
-    }
 }
